@@ -3,9 +3,6 @@ import pytz
 from datetime import datetime
 
 
-URL = 'http://devman.org/api/challenges/solution_attempts/'
-
-
 def is_midnighter(
         user_timestamp, user_timezone, midnight_start=0, midnight_end=6
 ):
@@ -16,21 +13,17 @@ def is_midnighter(
     return midnight_start <= user_localized_time.hour <= midnight_end
 
 
-def load_attempts():
-    number_of_pages = get_number_of_pages()
+def load_attempts(url='http://devman.org/api/challenges/solution_attempts/'):
+    params = {'page': 0}
 
-    for page in range(number_of_pages):
-        params = {'page': page}
-        response = requests.get(URL, params=params)
+    while True:
+        params['page'] += 1
+        response = requests.get(url, params=params)
         if response.ok:
             for attempt in response.json().get('records'):
                 yield attempt
-
-
-def get_number_of_pages():
-    response = requests.get(URL)
-    if response.ok:
-        return response.json().get('number_of_pages')
+        else:
+            return
 
 
 def get_midnighters():
